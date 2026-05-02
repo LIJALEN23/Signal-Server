@@ -159,6 +159,8 @@ import org.whispersystems.textsecuregcm.grpc.MessagesAnonymousGrpcService;
 import org.whispersystems.textsecuregcm.grpc.MessagesGrpcService;
 import org.whispersystems.textsecuregcm.grpc.MetricServerInterceptor;
 import org.whispersystems.textsecuregcm.grpc.PaymentsGrpcService;
+import org.whispersystems.textsecuregcm.grpc.ProfileAnonymousGrpcService;
+import org.whispersystems.textsecuregcm.grpc.ProfileGrpcService;
 import org.whispersystems.textsecuregcm.grpc.RequestAttributesInterceptor;
 import org.whispersystems.textsecuregcm.grpc.ValidatingInterceptor;
 import org.whispersystems.textsecuregcm.grpc.net.ManagedGrpcServer;
@@ -970,6 +972,7 @@ public class WhisperServerService extends Application<WhisperServerConfiguration
             new AccountsGrpcService(accountsManager, rateLimiters, usernameHashZkProofVerifier, registrationRecoveryPasswordsManager),
             ExternalServiceCredentialsGrpcService.createForAllExternalServices(config, rateLimiters),
             new KeysGrpcService(accountsManager, keysManager, rateLimiters),
+            new ProfileGrpcService(clock, accountsManager, profilesManager, dynamicConfigurationManager, config.getBadges(), profileCdnPolicyGenerator, profileCdnPolicySigner, profileBadgeConverter, rateLimiters),
             new MessagesGrpcService(accountsManager, rateLimiters, messageSender, messageByteLimitCardinalityEstimator, spamChecker, Clock.systemUTC()),
             new BackupsGrpcService(accountsManager, backupAuthManager, backupMetrics),
             new DevicesGrpcService(accountsManager),
@@ -991,6 +994,7 @@ public class WhisperServerService extends Application<WhisperServerConfiguration
             new AccountsAnonymousGrpcService(accountsManager, rateLimiters),
             new CallQualitySurveyGrpcService(callQualitySurveyManager, rateLimiters),
             new KeysAnonymousGrpcService(accountsManager, keysManager, zkSecretParams, Clock.systemUTC()),
+            new ProfileAnonymousGrpcService(accountsManager, profilesManager, profileBadgeConverter, zkSecretParams),
             new PaymentsGrpcService(currencyManager),
             new MessagesAnonymousGrpcService(accountsManager, rateLimiters, messageSender, groupSendTokenUtil, messageByteLimitCardinalityEstimator, spamChecker, Clock.systemUTC()),
             new BackupsAnonymousGrpcService(backupManager, backupMetrics, config.getAttachments().maxUploadSizeInBytes()),
