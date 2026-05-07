@@ -11,6 +11,7 @@ import static org.junit.jupiter.api.Assertions.assertTrue;
 import static org.mockito.ArgumentMatchers.any;
 import static org.mockito.ArgumentMatchers.anyLong;
 import static org.mockito.ArgumentMatchers.eq;
+import static org.mockito.Mockito.doThrow;
 import static org.mockito.Mockito.when;
 
 import com.google.common.collect.Iterators;
@@ -112,6 +113,16 @@ class BackupsAnonymousGrpcServiceTest extends
         .setSignedPresentation(signedPresentation(presentation))
         .build())
         .getResponseCase()).isEqualTo(SetPublicKeyResponse.ResponseCase.SUCCESS);
+  }
+
+  @Test
+  void setPublicKeyBadZkAuth() throws BackupFailedZkAuthenticationException {
+    doThrow(BackupFailedZkAuthenticationException.class).when(backupManager).setPublicKey(any(), any(), any());
+    assertThat(unauthenticatedServiceStub().setPublicKey(SetPublicKeyRequest.newBuilder()
+            .setPublicKey(ByteString.copyFrom(ECKeyPair.generate().getPublicKey().serialize()))
+            .setSignedPresentation(signedPresentation(presentation))
+            .build())
+        .getResponseCase()).isEqualTo(SetPublicKeyResponse.ResponseCase.FAILED_AUTHENTICATION);
   }
 
   @Test

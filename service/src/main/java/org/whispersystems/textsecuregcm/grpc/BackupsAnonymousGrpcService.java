@@ -157,16 +157,19 @@ public class BackupsAnonymousGrpcService extends SimpleBackupsAnonymousGrpc.Back
   }
 
   @Override
-  public SetPublicKeyResponse setPublicKey(final SetPublicKeyRequest request)
-      throws BackupFailedZkAuthenticationException {
+  public SetPublicKeyResponse setPublicKey(final SetPublicKeyRequest request) {
     final ECPublicKey publicKey = deserialize(ECPublicKey::new, request.getPublicKey().toByteArray());
     final BackupAuthCredentialPresentation presentation = deserialize(
         BackupAuthCredentialPresentation::new,
         request.getSignedPresentation().getPresentation().toByteArray());
     final byte[] signature = request.getSignedPresentation().getPresentationSignature().toByteArray();
 
-    backupManager.setPublicKey(presentation, signature, publicKey);
-    return SetPublicKeyResponse.newBuilder().setSuccess(Empty.getDefaultInstance()).build();
+    try {
+      backupManager.setPublicKey(presentation, signature, publicKey);
+      return SetPublicKeyResponse.newBuilder().setSuccess(Empty.getDefaultInstance()).build();
+    } catch (BackupFailedZkAuthenticationException e) {
+      return SetPublicKeyResponse.newBuilder().setFailedAuthentication(FailedZkAuthentication.getDefaultInstance()).build();
+    }
   }
 
 
